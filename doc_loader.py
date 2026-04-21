@@ -7,6 +7,7 @@ from langchain_community.document_loaders import (
     TextLoader,
     WebBaseLoader,
     DirectoryLoader,
+    PyPDFLoader,
 )
 
 
@@ -59,14 +60,42 @@ def lazy_loader():
             path = Path(tmpdir) / f"doc_{i}.txt"
             path.write_text(f"This is document {i}. It contains sample content.")
 
-    loader = DirectoryLoader(tmpdir, glob="*.txt", loader_cls=TextLoader)
-    print("Initialized lazy loader for directory:", tmpdir)
-    for doc in loader.lazy_load():
-        print("Document Content Preview:", doc.page_content[:50], "...")
-        print("Metadata:", doc.metadata["source"])
+        loader = DirectoryLoader(tmpdir, glob="*.txt", loader_cls=TextLoader)
+        print("Initialized lazy loader for directory:", tmpdir)
+        for doc in loader.lazy_load():
+            print("Document Content Preview:", doc.page_content[:50], "...")
+            print("Metadata:", doc.metadata["source"])
+
+def doc_structure():
+    doc = Document(
+        page_content="This is a sample document.",
+        metadata={
+            "source": "manual_creation.txt",
+            "author": "Venkat",
+            "length": 30,
+            "tags": ["sample", "test"],
+            "created_at": "2026-04-20",
+        }
+    )
+
+    print("Document Structure:")
+    print(f"  page_content (type): {type(doc.page_content)}")
+    print(f"  page_content: {doc.page_content}")
+    print(f"  metadata: {doc.metadata}")
+
+def pdf_loader(pdf_path: str):
+    loader = PyPDFLoader(pdf_path)
+    documents = loader.load()
+
+    print(f"Loaded {len(documents)} document(s) from PDF")
+    for i, doc in enumerate(documents):
+        print(f"Document {i+1} Content Preview: {doc.page_content[:100]}...")
+        print(f"Metadata: {doc.metadata}")
 
 
 if __name__ == "__main__":
     # load_text_file()
     # web_loader()
-    lazy_loader()
+    # lazy_loader()
+    # doc_structure()
+    pdf_loader("./docs/langchain_demo.pdf")
